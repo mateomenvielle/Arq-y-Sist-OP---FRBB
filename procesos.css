@@ -1,0 +1,27 @@
+using System;               // Librería base para entrada/salida
+using System.Diagnostics;   // Necesaria para trabajar con procesos
+
+class Programa
+{
+    static void Main()
+    {
+        // Mostramos el ID del proceso actual (el padre)
+        Console.WriteLine("Soy el proceso padre, PID: " + Process.GetCurrentProcess().Id);
+
+        // Creamos un objeto que contiene la información del nuevo proceso
+        ProcessStartInfo psi = new ProcessStartInfo();
+
+        // Indicamos el programa a ejecutar. Acá usamos Bloc de notas.
+        // Podés cambiar esto por "cmd.exe", "calc.exe", "mspaint.exe", etc.
+        psi.FileName = "notepad.exe";
+
+        // Le decimos que use el shell del sistema para ejecutar (necesario en algunos casos)
+        psi.UseShellExecute = true;
+
+        // Lanzamos el proceso hijo usando la configuración anterior
+        Process hijo = Process.Start(psi);
+
+        // Mostramos el ID del proceso hijo recién creado
+        Console.WriteLine("Lancé al proceso hijo con PID: " + hijo.Id);
+    }
+}
