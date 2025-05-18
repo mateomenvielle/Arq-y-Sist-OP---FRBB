@@ -1,0 +1,70 @@
+[
+    {
+        "id": "inject_sensor",
+        "type": "inject",
+        "z": "flow1",
+        "name": "Sensor - Temperatura",
+        "props": [{"p":"payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "22",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [["func_productor"]]
+    },
+    {
+        "id": "func_productor",
+        "type": "function",
+        "z": "flow1",
+        "name": "Productor - Arma mensaje",
+        "func": "// Arma un objeto con temperatura y timestamp\nmsg.payload = {\n    temperatura: msg.payload,\n    time: new Date().toISOString()\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 320,
+        "y": 100,
+        "wires": [["func_semaforo"]]
+    },
+    {
+        "id": "func_semaforo",
+        "type": "function",
+        "z": "flow1",
+        "name": "Semáforo / Lock",
+        "func": "// Contexto global para lock\nlet lock = global.get('lock') || false;\n\nif(lock) {\n    // Recurso ocupado, no pasa\n    return null;\n} else {\n    // Recurso libre, lo bloqueamos y dejamos pasar\n    global.set('lock', true);\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 520,
+        "y": 100,
+        "wires": [["func_consumidor"]]
+    },
+    {
+        "id": "func_consumidor",
+        "type": "function",
+        "z": "flow1",
+        "name": "Consumidor - Procesa y libera",
+        "func": "// Procesar dato, p.ej. mostrar en debug\nnode.status({fill:\"green\",shape:\"dot\",text:\"Procesando\"});\n\n// Simulamos procesamiento con delay\nsetTimeout(() => {\n    node.status({});\n    // Liberar recurso\n    global.set('lock', false);\n}, 1000);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 720,
+        "y": 100,
+        "wires": [["debug_output"]]
+    },
+    {
+        "id": "debug_output",
+        "type": "debug",
+        "z": "flow1",
+        "name": "Salida Consumidor",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 900,
+        "y": 100,
+        "wires": []
+    }
+]
