@@ -1,16 +1,19 @@
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Lock
+import time
 
-def productor(q):
-    q.put("Hola desde el productor")
-
-def consumidor(q):
-    mensaje = q.get()
-    print("Consumidor recibió:", mensaje)
+def tarea(nombre, lock):
+    lock.acquire()
+    try:
+        print(f"{nombre} está usando el recurso")
+        time.sleep(2)
+    finally:
+        print(f"{nombre} liberó el recurso")
+        lock.release()
 
 if __name__ == '__main__':
-    q = Queue()
-    p1 = Process(target=productor, args=(q,))
-    p2 = Process(target=consumidor, args=(q,))
+    lock = Lock()
+    p1 = Process(target=tarea, args=("Proceso 1", lock))
+    p2 = Process(target=tarea, args=("Proceso 2", lock))
     p1.start()
     p2.start()
     p1.join()
